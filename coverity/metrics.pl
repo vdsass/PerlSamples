@@ -2,14 +2,15 @@
 
 =pod
 
-create confluence wiki markup for coverity metrics
+create html for CPP/Java metrics on two hardware platforms
 
-$ perl coverityMetrics.pl
+$ perl metrics.pl datafile
 
 =cut
 
 use warnings;
 use strict;
+
 use Carp;
 use Data::Dumper::Simple;
 use FindBin;
@@ -24,19 +25,18 @@ use utf8;
 local $| = 1;
 my( $script ) = $FindBin::Script =~ /(.*)\.pl$/x;
 
-#print $script, ' ', __LINE__, ' $Net::Twitter::VERSION = ', $Net::Twitter::VERSION, "\n\n";
-
-my( $TRUE, $FALSE, $logFileName, $CRITICAL_C_THRESHOLD, $MAJOR_C_THRESHOLD, $MINOR_C_THRESHOLD,
-    $CRITICAL_J_THRESHOLD, $MAJOR_J_THRESHOLD, $MINOR_J_THRESHOLD );
+my( $TRUE, $FALSE, $logFileName, $CRITICAL_CPP_THRESHOLD, $MAJOR_CPP_THRESHOLD, $MINOR_CPP_THRESHOLD,
+    $CRITICAL_JAVA_THRESHOLD, $MAJOR_JAVA_THRESHOLD, $MINOR_JAVA_THRESHOLD );
 
 setConfiguration();
 
-my $debugTrace = $TRUE;
+my $debugTrace   = $TRUE;
+my $debugTrace_0 = $TRUE;
 
-my $project  = 'sdb-common-android-jb-4.2';
-my $hardware = 'CA20130401';
+my $project  = 'Project:';
+my $hardware = 'Andromeda';
 
-my @columns   = qw(DATE CRITICAL_AP_C CRITICAL_CP_C CRITICAL_AP_J MAJOR_AP_C MAJOR_CP_C MAJOR_AP_J MINOR_AP_C MINOR_CP_C MINOR_AP_J);
+my @columns   = qw(DATE CRITICAL_PA_CPP CRITICAL_PB_CPP CRITICAL_PA_JAVA MAJOR_PA_CPP MAJOR_PB_CPP MAJOR_PA_JAVA MINOR_PA_CPP MINOR_PB_CPP MINOR_PA_JAVA);
 my @xlColumns = qw(DATE FILENAME);
 my $nextArgv  = '';
 my (@dates, @xlDates);
@@ -46,42 +46,34 @@ getData();
 print $script, ' ', __LINE__, ' ', Dumper( @dates )   if $debugTrace;
 print $script, ' ', __LINE__, ' ', Dumper( @xlDates ) if $debugTrace;
 
-# re-format data for wiki
-# keep no-color copy for metrics
+# 1. create a easily sorted temporary date (yyyymmdd) associated with each array hash element
+# 2. sort the result
+# 3. copy the sorted date & data hashes back into the array
+#
+@dates =  map  { $_->[0] }
+          sort { $a->[1] cmp $b->[1] }
+          map  { [ $_, ( sprintf( '%4u%02u%02u', ( split '/', $_->{ DATE } )[2,0,1] ) ) ] } @dates;
+
+# re-format data for display; keep no-color copy for metrics
 #
 my @colorDates = @{ dclone( \@dates ) };
-
 createColorMarkup( \@colorDates );
-
-print $script, ' ', __LINE__, ' ', Dumper( @colorDates )   if $debugTrace;
-
-# date field will need to be epoch time
-
-my @sortedDates = map{ $_->[0] }
-                  sort{ $a->[1] cmp $b->[1] }
-                  map{ [ $_, $_->{DATE} ] } @dates;
-
-print $script, ' ', __LINE__, ' ', Dumper( @sortedDates )   if $debugTrace;
-
-my $latestDate = $sortedDates[0]->{DATE};
-print $script, ' ', __LINE__, ' $latestDate = ', $latestDate if $debugTrace;
-my( $mm, $dd, $yyyy ) = split '/', $latestDate;
-my $fileDate = sprintf( '%02u%02u%4u', $mm, $dd, $yyyy );
+print $script, ' ', __LINE__, ' ', Dumper( @colorDates )   if $debugTrace_0;
 
 # Template::Toolkit
-# template file, $script.tt will map data to the wiki format
+# template file, $script.tt will map data to html
 #
 my $tt = Template->new;
 
-$tt->process( $script . '.tt',
+$tt->process( $script . '_html.tt',
              { project    => $project,
                hardware   => $hardware,
                colordates => \@colorDates,
                dates      => \@dates,
                exceldates => \@xlDates,
-               latestdate => $fileDate,
+               copyright  => 'dsassdevatgmaildotcom 2013',
              },
-             $script . '.csv' )
+             $script . '.html' )
   or croak '__CROAK__ $tt->error = ', $tt->error;
 
 
@@ -98,91 +90,90 @@ sub createColorMarkup
 
   for( my $i=0; $i<$aLength; $i++ )
   {
-    # configuration AP
+    # configuration PA
     #
-    if( $aRef->[$i]{CRITICAL_AP_C} < $CRITICAL_C_THRESHOLD )
+    if( $aRef->[$i]{CRITICAL_PA_CPP} < $CRITICAL_CPP_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_AP_C} = '{color:green}' . $aRef->[$i]{CRITICAL_AP_C} . '{color}';
+      $aRef->[$i]{CRITICAL_PA_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_PA_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{CRITICAL_AP_C} = '{color:red}' . $aRef->[$i]{CRITICAL_AP_C} . '{color}';
+      $aRef->[$i]{CRITICAL_PA_CPP} = '<font color="red">' . $aRef->[$i]{CRITICAL_PA_CPP} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MAJOR_AP_C} < $MAJOR_C_THRESHOLD )
+    if( $aRef->[$i]{MAJOR_PA_CPP} < $MAJOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_AP_C} = '{color:green}' . $aRef->[$i]{MAJOR_AP_C} . '{color}';
+      $aRef->[$i]{MAJOR_PA_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_PA_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MAJOR_AP_C} = '{color:red}' . $aRef->[$i]{MAJOR_AP_C} . '{color}';
+      $aRef->[$i]{MAJOR_PA_CPP} = '<font color="red">' . $aRef->[$i]{MAJOR_PA_CPP} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MINOR_AP_C} < $MINOR_C_THRESHOLD )
+    if( $aRef->[$i]{MINOR_PA_CPP} < $MINOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_AP_C} = '{color:green}' . $aRef->[$i]{MINOR_AP_C} . '{color}';
+      $aRef->[$i]{MINOR_PA_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_PA_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MINOR_AP_C} = '{color:red}' . $aRef->[$i]{MINOR_AP_C} . '{color}';
+      $aRef->[$i]{MINOR_PA_CPP} = '<font color="red">' . $aRef->[$i]{MINOR_PA_CPP} . '</font>&nbsp;';
     }
 
 
-    if( $aRef->[$i]{CRITICAL_AP_J} < $CRITICAL_C_THRESHOLD )
+    if( $aRef->[$i]{CRITICAL_PA_JAVA} < $CRITICAL_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_AP_J} = '{color:green}' . $aRef->[$i]{CRITICAL_AP_J} . '{color}';
+      $aRef->[$i]{CRITICAL_PA_JAVA} = '<font color="green">' . $aRef->[$i]{CRITICAL_PA_JAVA} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{CRITICAL_AP_J} = '{color:red}' . $aRef->[$i]{CRITICAL_AP_J} . '{color}';
+      $aRef->[$i]{CRITICAL_PA_JAVA} = '<font color="red">' . $aRef->[$i]{CRITICAL_PA_JAVA} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MAJOR_AP_J} < $MAJOR_C_THRESHOLD )
+    if( $aRef->[$i]{MAJOR_PA_JAVA} < $MAJOR_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_AP_J} = '{color:green}' . $aRef->[$i]{MAJOR_AP_J} . '{color}';
+      $aRef->[$i]{MAJOR_PA_JAVA} = '<font color="green">' . $aRef->[$i]{MAJOR_PA_JAVA} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MAJOR_AP_J} = '{color:red}' . $aRef->[$i]{MAJOR_AP_J} . '{color}';
+      $aRef->[$i]{MAJOR_PA_JAVA} = '<font color="red">' . $aRef->[$i]{MAJOR_PA_JAVA} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MINOR_AP_J} < $MINOR_C_THRESHOLD )
+    if( $aRef->[$i]{MINOR_PA_JAVA} < $MINOR_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_AP_J} = '{color:green}' . $aRef->[$i]{MINOR_AP_J} . '{color}';
+      $aRef->[$i]{MINOR_PA_JAVA} = '<font color="green">' . $aRef->[$i]{MINOR_PA_JAVA} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MINOR_AP_J} = '{color:red}' . $aRef->[$i]{MINOR_AP_J} . '{color}';
+      $aRef->[$i]{MINOR_PA_JAVA} = '<font color="red">' . $aRef->[$i]{MINOR_PA_JAVA} . '</font>&nbsp;';
     }
 
-
-    # configuration CP
+    # configuration PB
     #
-    if( $aRef->[$i]{CRITICAL_CP_C} < $CRITICAL_C_THRESHOLD )
+    if( $aRef->[$i]{CRITICAL_PB_CPP} < $CRITICAL_CPP_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_CP_C} = '{color:green}' . $aRef->[$i]{CRITICAL_CP_C} . '{color}';
+      $aRef->[$i]{CRITICAL_PB_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_PB_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{CRITICAL_CP_C} = '{color:red}' . $aRef->[$i]{CRITICAL_CP_C} . '{color}';
+      $aRef->[$i]{CRITICAL_PB_CPP} = '<font color="red">' . $aRef->[$i]{CRITICAL_PB_CPP} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MAJOR_CP_C} < $MAJOR_C_THRESHOLD )
+    if( $aRef->[$i]{MAJOR_PB_CPP} < $MAJOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_CP_C} = '{color:green}' . $aRef->[$i]{MAJOR_CP_C} . '{color}';
+      $aRef->[$i]{MAJOR_PB_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_PB_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MAJOR_CP_C} = '{color:red}' . $aRef->[$i]{MAJOR_CP_C} . '{color}';
+      $aRef->[$i]{MAJOR_PB_CPP} = '<font color="red">' . $aRef->[$i]{MAJOR_PB_CPP} . '</font>&nbsp;';
     }
 
-    if( $aRef->[$i]{MINOR_CP_C} < $MINOR_C_THRESHOLD )
+    if( $aRef->[$i]{MINOR_PB_CPP} < $MINOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_CP_C} = '{color:green}' . $aRef->[$i]{MINOR_CP_C} . '{color}';
+      $aRef->[$i]{MINOR_PB_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_PB_CPP} . '</font>&nbsp;';
     }
     else
     {
-      $aRef->[$i]{MINOR_CP_C} = '{color:red}' . $aRef->[$i]{MINOR_CP_C} . '{color}';
+      $aRef->[$i]{MINOR_PB_CPP} = '<font color="red">' . $aRef->[$i]{MINOR_PB_CPP} . '</font>&nbsp;';
     }
   }
   return;
@@ -192,7 +183,6 @@ sub createColorMarkup
 sub getData
 {
   # read/process input .csv
-  #
   # EXAMPLE: 5/12/2013,16,92,11,68,79,71,335,264,212
   #
   while( <> )
@@ -204,8 +194,10 @@ sub getData
       chomp;
       my %xlDate;
       @xlDate{@xlColumns}   = split /,/x;
-      my( $mm, $dd, $yyyy ) = split '/', $xlDate{DATE};
-      $xlDate{FILEDATE} = sprintf( '%02u%02u%4u', $mm, $dd, $yyyy );
+
+      my( $mon, $day, $year ) = split '/', $xlDate{DATE};
+      $xlDate{FILEDATE} = sprintf( '%02u%02u%4u', $mon, $day, $year );
+
       push @xlDates, \%xlDate;
     }
     else
@@ -223,59 +215,18 @@ sub setConfiguration
 {
   Readonly::Scalar $TRUE  => 1;
   Readonly::Scalar $FALSE => 0;
-  Readonly::Scalar $logFileName => 'logs/coverityMetrics.log';
+  Readonly::Scalar $logFileName => 'logs/defectMetrics.log';
 
-  Readonly::Scalar $CRITICAL_C_THRESHOLD => 64;
-  Readonly::Scalar $MAJOR_C_THRESHOLD    => 95;
-  Readonly::Scalar $MINOR_C_THRESHOLD    => 290;
+  Readonly::Scalar $CRITICAL_CPP_THRESHOLD => 25;
+  Readonly::Scalar $MAJOR_CPP_THRESHOLD    => 50;
+  Readonly::Scalar $MINOR_CPP_THRESHOLD    => 262;
 
-  Readonly::Scalar $CRITICAL_J_THRESHOLD => 64;
-  Readonly::Scalar $MAJOR_J_THRESHOLD    => 95;
-  Readonly::Scalar $MINOR_J_THRESHOLD    => 290;
+  Readonly::Scalar $CRITICAL_JAVA_THRESHOLD => 60;
+  Readonly::Scalar $MAJOR_JAVA_THRESHOLD    => 75;
+  Readonly::Scalar $MINOR_JAVA_THRESHOLD    => 250;
 
   return;
 }
 
 
 __END__
-
-
-open my $fh, '>', $logFileName
-  or croak "Can't open $logFileName: $!\n";
-
-
-my %opts = (
-
-	   );
-
-GetOptions(
-	   \%opts,
-	   'passwordfile|pf=s',
-	   'username|u=s',
-	   'password|p=s',
-	   'verbose|v',
-	   'help|h',
-	  );
-
-if (exists $opts{passwordfile} && !exists $opts{password} )
-{
- open my $pwf, '<', $opts{ passwordfile }
-   or croak "Can't open $opts{ passwordfile }: $!";
- $opts{ password } = <$pwf>;
- close $pwf;
- chomp $opts{ password };
-}
-
-print usage() && exit(0) if exists $opts{ help };
-
-
-
-my $handle = Net::Twitter->new({
-				username => $opts{username},
-				password => $opts{password}
-			       });
-
-for my $item( @ARGV )
-{
- searchTwitter( $item );
-}
