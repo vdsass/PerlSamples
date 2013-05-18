@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <title>
+      SW Defect Metrics [% project %] [% hardware %]
+    </title>
+    <script src="../../../../GitHub/Chart.js/Chart.js"></script>
+    <meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+
+    <style>
+      canvas   {
+	       }
+     .headline {
+                text-align:center;
+                font-weight:bold;
+                font-size:40px;
+               }
+     .heading {
+               text-align:center;
+               font-weight:bold;
+              }
+     .data    {
+               text-align:center;
+              }
+   </style>
+
+  </head>
+
+  <body>
+
+
+    <h1 class="headline">[% project %] [% hardware %] SW Defect Metrics</h1>
+
+    <table border=1 width="100%">
+      <tr>
+        <td>&nbsp</td>
+        <td colspan=3; class="heading">Critical Defects</td>
+        <td colspan=3; class="heading">Major Defects</td>
+        <td colspan=3; class="heading">Minor Defects</td>
+      </tr>
+      <tr>
+      <td class="heading">Date</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td></tr>
+
+      [% FOREACH colordate = colordates -%]
+        <tr>
+          <td class="data">[%- colordate.DATE -%]</td>
+          <td class="data">[%- colordate.CRITICAL_PA_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_PB_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_PA_JAVA -%]</td>
+          <td class="data">[%- colordate.MAJOR_PA_CPP -%]</td> <td class="data">[%- colordate.MAJOR_PB_CPP -%]</td> <td class="data">[%- colordate.MAJOR_PA_JAVA -%]</td>
+          <td class="data">[%- colordate.MINOR_PA_CPP -%]</td> <td class="data">[%- colordate.MINOR_PB_CPP -%]</td> <td class="data">[%- colordate.MINOR_PA_JAVA -%]</td>
+        </tr>
+      [%- END -%]
+
+    </table>
+
+    <canvas id="canvas1" height="450" width="600"></canvas>
+
+    <script>
+      var lineChartData1 = {
+                            labels   :  ["January","February","March","April","May","June","July"],
+                            datasets :  [
+                                          {
+                                            fillColor        : "rgba(220,220,220,0.5)",
+                                            strokeColor      : "rgba(220,220,220,1)",
+                                            pointColor       : "rgba(220,220,220,1)",
+                                            pointStrokeColor : "#fff",
+                                            data             : [65,59,90,81,56,55,40]
+                                          },
+                                          {
+                                            fillColor        : "rgba(151,187,205,0.5)",
+                                            strokeColor      : "rgba(151,187,205,1)",
+                                            pointColor       : "rgba(151,187,205,1)",
+                                            pointStrokeColor : "#fff",
+                                            data             : [28,48,40,19,96,27,100]
+                                          }
+                                        ]
+                          }
+
+      var myLine = new Chart(document.getElementById("canvas1").getContext("2d")).Line(lineChartData1);
+    </script>
+
+    <canvas id="canvas2" height="300" width="600"></canvas>
+
+    <script>
+      var lineChartData2 = {
+                            labels:[[%- FOREACH date = dates -%]"[%- date.DATE -%]"[%- "," UNLESS loop.last -%][%- END -%]],
+                            datasets :  [
+                                          {
+                                            fillColor        : "rgba(151,187,205,0.5)",
+                                            strokeColor      : "rgba(151,187,205,1)",
+                                            pointColor       : "rgba(151,187,205,1)",
+                                            pointStrokeColor : "#fff",
+                                            data:[
+                                            [%- FOREACH date = dates -%]
+                                              [%- date.MAJOR_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                            [%- END -%]]
+                                          }
+                                        ]
+                          }
+
+      var myLine = new Chart(document.getElementById("canvas2").getContext("2d")).Line(lineChartData2);
+    </script>
+
+
+
+
+
+    <div id="footer">
+      <div id="copyright">
+        &copy; [% copyright %]
+      </div>
+    </div>
+
+  </body>
+</html>
