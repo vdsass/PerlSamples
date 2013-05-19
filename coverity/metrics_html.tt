@@ -1,11 +1,37 @@
 <!doctype html>
 <html>
-
   <head>
 
+  <!--
+  Use of Chart.js authorized under:
+
+  The MIT License (MIT)
+
+  Copyright (c) <year> <copyright holders>
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+  -->
+
     <title>
-      SW Defect Metrics [% project %] [% hardware %]
+      SW DEFECT METRICS for [%- project -%] [%- hardware -%]
     </title>
+
     <script src="../../../../GitHub/Chart.js/Chart.js"></script>
     <meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
 
@@ -25,20 +51,15 @@
                text-align:center;
               }
    </style>
-
   </head>
-
   <body>
-
-
-    <h1 class="headline">[% project %] [% hardware %] SW Defect Metrics</h1>
-
+    <h1 class="headline">SW DEFECT METRICS for [%- project -%] [%- hardware -%]</h1>
     <table border=1 width="100%">
       <tr>
-        <td>&nbsp</td>
-        <td colspan=3; class="heading">Critical Defects</td>
-        <td colspan=3; class="heading">Major Defects</td>
-        <td colspan=3; class="heading">Minor Defects</td>
+        <td>&nbsp;</td>
+        <td colspan=3; class="heading">CRITICAL</td>
+        <td colspan=3; class="heading">MAJOR</td>
+        <td colspan=3; class="heading">MINOR</td>
       </tr>
       <tr>
       <td class="heading">Date</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td> <td class="heading">GPP C++</td> <td class="heading">MODEM C++</td> <td class="heading">GPP Java</td></tr>
@@ -51,58 +72,77 @@
           <td class="data">[%- colordate.MINOR_PA_CPP -%]</td> <td class="data">[%- colordate.MINOR_PB_CPP -%]</td> <td class="data">[%- colordate.MINOR_PA_JAVA -%]</td>
         </tr>
       [%- END -%]
-
     </table>
 
-    <canvas id="canvas1" height="450" width="600"></canvas>
+    <h2>CRITICAL BURNDOWN</h2>
+    <canvas id="canvasCritical" height="300" width="600"></canvas>
 
     <script>
-      var lineChartData1 = {
-                            labels   :  ["January","February","March","April","May","June","July"],
+      var lineChartCritical= {
+                            labels:[
+                            [%- FOREACH date = dates -%]"
+                              [%- date.DATE -%]"
+                              [%- "," UNLESS loop.last -%]
+                            [%- END -%]],
                             datasets :  [
                                           {
-                                            fillColor        : "rgba(220,220,220,0.5)",
-                                            strokeColor      : "rgba(220,220,220,1)",
-                                            pointColor       : "rgba(220,220,220,1)",
-                                            pointStrokeColor : "#fff",
-                                            data             : [65,59,90,81,56,55,40]
-                                          },
-                                          {
-                                            fillColor        : "rgba(151,187,205,0.5)",
-                                            strokeColor      : "rgba(151,187,205,1)",
-                                            pointColor       : "rgba(151,187,205,1)",
-                                            pointStrokeColor : "#fff",
-                                            data             : [28,48,40,19,96,27,100]
-                                          }
-                                        ]
-                          }
-
-      var myLine = new Chart(document.getElementById("canvas1").getContext("2d")).Line(lineChartData1);
-    </script>
-
-    <canvas id="canvas2" height="300" width="600"></canvas>
-
-    <script>
-      var lineChartData2 = {
-                            labels:[[%- FOREACH date = dates -%]"[%- date.DATE -%]"[%- "," UNLESS loop.last -%][%- END -%]],
-                            datasets :  [
-                                          {
-                                            fillColor        : "rgba(151,187,205,0.5)",
-                                            strokeColor      : "rgba(151,187,205,1)",
-                                            pointColor       : "rgba(151,187,205,1)",
+                                            fillColor        : "rgba(255,255,204,0.5)",
+                                            strokeColor      : "rgba(255,0,0,1)",
+                                            pointColor       : "rgba(255,0,0,1)",
                                             pointStrokeColor : "#fff",
                                             data:[
                                             [%- FOREACH date = dates -%]
-                                              [%- date.MAJOR_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                              [%- date.CRITICAL_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                            [%- END -%]]
+                                          },
+                                          {
+                                            fillColor        : "rgba(255,255,204,0.5)",
+                                            strokeColor      : "rgba(0,0,255,1)",
+                                            pointColor       : "rgba(0,0,255,1)",
+                                            pointStrokeColor : "#fff",
+                                            data:[
+                                            [%- FOREACH date = dates -%]
+                                              [%- date.CRITICAL_PA_JAVA -%][%- "," UNLESS loop.last -%]
                                             [%- END -%]]
                                           }
                                         ]
                           }
 
-      var myLine = new Chart(document.getElementById("canvas2").getContext("2d")).Line(lineChartData2);
+      var myLine = new Chart(document.getElementById("canvasCritical").getContext("2d")).Line(lineChartCritical);
     </script>
 
+    <h2>MAJOR BURNDOWN</h2>
+    <canvas id="canvasMajor" height="300" width="600"></canvas>
 
+    <script>
+      var lineChartMajor = {
+                            labels:[[%- FOREACH date = dates -%]"[%- date.DATE -%]"[%- "," UNLESS loop.last -%][%- END -%]],
+                            datasets :  [
+                                          {
+                                            fillColor        : "rgba(255,255,204,0.5)",
+                                            strokeColor      : "rgba(153,0,0,1)",
+                                            pointColor       : "rgba(153,0,0,1)",
+                                            pointStrokeColor : "#fff",
+                                            data:[
+                                            [%- FOREACH date = dates -%]
+                                              [%- date.MAJOR_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                            [%- END -%]]
+                                          },
+                                          {
+                                            fillColor        : "rgba(255,255,204,0.5)",
+                                            strokeColor      : "rgba(0,0,153,1)",
+                                            pointColor       : "rgba(0,0,153,1)",
+                                            pointStrokeColor : "#fff",
+                                            data:[
+                                            [%- FOREACH date = dates -%]
+                                              [%- date.MAJOR_PA_JAVA -%][%- "," UNLESS loop.last -%]
+                                            [%- END -%]]
+                                          }
+                                        ]
+                          }
+
+      var myLine = new Chart(document.getElementById("canvasMajor").getContext("2d")).Line(lineChartMajor);
+    </script>
 
 
 
