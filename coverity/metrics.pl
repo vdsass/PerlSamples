@@ -2,7 +2,7 @@
 
 =pod
 
-create html for CPP/Java metrics on two hardware platforms
+create html for C++/Java metrics on two hardware platforms
 
 $ perl metrics.pl datafile
 

@@ -32,8 +32,68 @@
       SW DEFECT METRICS for [%- project -%] [%- hardware -%]
     </title>
 
-    <script src="../../../../GitHub/Chart.js/Chart.js"></script>
     <meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
+
+    <script src="../../../../GitHub/Chart.js/Chart.js"></script>
+
+    <script type="text/javascript">
+      function drawLegend1()
+      {
+        // Set the starting x and y values
+        var x=5;
+        var y=5;
+
+        // Get the area for the canvas and the 2D context
+        // Draw 2 rectangles each with label
+
+        var ctx = document.getElementById("criticalLegend").getContext("2d");
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.font      = "9pt Arial";
+        ctx.fillText( "LEGEND:", x+45, y+23 );
+
+        ctx.fillStyle = "rgba(255,0,0,1)";
+        ctx.fillRect( x+110, y+10, 25, 15 );
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.font      = "9pt Arial";
+        ctx.fillText( "C++", x+140, y+23 );
+
+        ctx.fillStyle = "rgba(0,0,255,1)";
+        ctx.fillRect( x+175, y+10, 25, 15 );
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.font      = "9pt Arial";
+        ctx.fillText( "JAVA", x+205, y+23 );
+      }
+
+      function drawLegend2()
+      {
+        // Set the starting x and y values
+        var x=5;
+        var y=5;
+
+        // Get the area for the canvas and the 2D context
+        // Draw 2 rectangles each with label
+
+        var ctx = document.getElementById("majorLegend").getContext("2d");
+
+        ctx.fillStyle = "rgba(155,0,0,1)";
+        ctx.fillRect( x+100, y+10, 25, 15 );
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.font      = "9pt Arial";
+        ctx.fillText( "C++", x+135, y+20 );
+
+        ctx.fillStyle = "rgba(0,0,155,1)";
+        ctx.fillRect( x+100, y+40, 25, 15 );
+
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.font      = "9pt Arial";
+        ctx.fillText( "JAVA", x+135, y+50 );
+      }
+
+    </script>
 
     <style>
       canvas   {
@@ -52,7 +112,9 @@
               }
    </style>
   </head>
+
   <body>
+
     <h1 class="headline">SW DEFECT METRICS for [%- project -%] [%- hardware -%]</h1>
     <table border=1 width="100%">
       <tr>
@@ -74,42 +136,56 @@
       [%- END -%]
     </table>
 
+    <hr>
+
     <h2>CRITICAL BURNDOWN</h2>
+
     <canvas id="canvasCritical" height="300" width="600"></canvas>
 
     <script>
-      var lineChartCritical= {
-                            labels:[
-                            [%- FOREACH date = dates -%]"
-                              [%- date.DATE -%]"
-                              [%- "," UNLESS loop.last -%]
-                            [%- END -%]],
-                            datasets :  [
-                                          {
-                                            fillColor        : "rgba(255,255,204,0.5)",
-                                            strokeColor      : "rgba(255,0,0,1)",
-                                            pointColor       : "rgba(255,0,0,1)",
-                                            pointStrokeColor : "#fff",
-                                            data:[
-                                            [%- FOREACH date = dates -%]
-                                              [%- date.CRITICAL_PA_CPP -%][%- "," UNLESS loop.last -%]
-                                            [%- END -%]]
-                                          },
-                                          {
-                                            fillColor        : "rgba(255,255,204,0.5)",
-                                            strokeColor      : "rgba(0,0,255,1)",
-                                            pointColor       : "rgba(0,0,255,1)",
-                                            pointStrokeColor : "#fff",
-                                            data:[
-                                            [%- FOREACH date = dates -%]
-                                              [%- date.CRITICAL_PA_JAVA -%][%- "," UNLESS loop.last -%]
-                                            [%- END -%]]
-                                          }
-                                        ]
-                          }
+      var lineChartCritical = {
+                                labels:[
+                                [%- FOREACH date = dates -%]"
+                                  [%- date.DATE -%]"
+                                  [%- "," UNLESS loop.last -%]
+                                [%- END -%]],
+                                datasets :  [
+                                              {
+                                                fillColor        : "rgba(255,255,204,0.5)",
+                                                strokeColor      : "rgba(255,0,0,1)",
+                                                pointColor       : "rgba(255,0,0,1)",
+                                                pointStrokeColor : "#fff",
+                                                data:[
+                                                [%- FOREACH date = dates -%]
+                                                  [%- date.CRITICAL_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                                [%- END -%]]
+                                              },
+                                              {
+                                                fillColor        : "rgba(255,255,204,0.5)",
+                                                strokeColor      : "rgba(0,0,255,1)",
+                                                pointColor       : "rgba(0,0,255,1)",
+                                                pointStrokeColor : "#fff",
+                                                data:[
+                                                [%- FOREACH date = dates -%]
+                                                  [%- date.CRITICAL_PA_JAVA -%][%- "," UNLESS loop.last -%]
+                                                [%- END -%]]
+                                              }
+                                            ]
+                              }
 
       var myLine = new Chart(document.getElementById("canvasCritical").getContext("2d")).Line(lineChartCritical);
+
     </script>
+
+    <div id="legend1" style="width:100%; height:10%;">
+      <canvas id="criticalLegend" height="100" width="600"></canvas>
+    </div>
+
+    <script type="text/javascript">
+      window.onload = drawLegend1();
+    </script>
+
+    <hr>
 
     <h2>MAJOR BURNDOWN</h2>
     <canvas id="canvasMajor" height="300" width="600"></canvas>
@@ -142,9 +218,16 @@
                           }
 
       var myLine = new Chart(document.getElementById("canvasMajor").getContext("2d")).Line(lineChartMajor);
+
     </script>
 
+    <div id="legend1" style="width:100%; height:10%;">
+      <canvas id="majorLegend" height="100" width="600"></canvas>
+    </div>
 
+    <script type="text/javascript">
+      window.onload = drawLegend2();
+    </script>
 
     <div id="footer">
       <div id="copyright">
