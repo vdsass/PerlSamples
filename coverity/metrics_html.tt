@@ -37,86 +37,106 @@
     <script src="../../../../GitHub/Chart.js/Chart.js"></script>
 
     <script type="text/javascript">
-      function drawLegend1()
-      {
-        // Set the starting x and y values
-        var x=5;
-        var y=5;
+		function drawThresholdLegend(options)
+		{
+		  // Set the starting x and y values
 
-        // Get the area for the canvas and the 2D context
-        // Draw 2 rectangles each with label
+		  var x        = options.x;
+		  var y        = options.y;
+                  var canvasId = options.canvasId;
+		  var colorAbove   = options.colorAbove;
+		  var colorBelow   = options.colorBelow;
 
-        var ctx = document.getElementById("criticalLegend").getContext("2d");
+		  // Get the area for the canvas and the 2D context
+		  // Draw 2 rectangles each with label
 
-        ctx.fillStyle = "rgb(0,0,0)";
-        ctx.font      = "9pt Arial";
-        ctx.fillText( "LEGEND:", x+45, y+23 );
+		  var ctx = document.getElementById(canvasId).getContext("2d");
 
-        ctx.fillStyle = "rgba(255,0,0,1)";
-        ctx.fillRect( x+110, y+10, 25, 15 );
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "LEGEND:", x+45, y+23 );
 
-        ctx.fillStyle = "rgb(0,0,0)";
-        ctx.font      = "9pt Arial";
-        ctx.fillText( "C++", x+140, y+23 );
+                  ctx.fillStyle = colorAbove;
+                  ctx.fillRect( x+110, y+10, 25, 15 );
 
-        ctx.fillStyle = "rgba(0,0,255,1)";
-        ctx.fillRect( x+175, y+10, 25, 15 );
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( ">=", x+140, y+23 );
 
-        ctx.fillStyle = "rgb(0,0,0)";
-        ctx.font      = "9pt Arial";
-        ctx.fillText( "JAVA", x+205, y+23 );
-      }
+                  ctx.fillStyle = colorBelow;
+                  ctx.fillRect( x+175, y+10, 25, 15 );
 
-      function drawLegend2()
-      {
-        // Set the starting x and y values
-        var x=5;
-        var y=5;
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "<", x+205, y+23 );
 
-        // Get the area for the canvas and the 2D context
-        // Draw 2 rectangles each with label
+		}
 
-        var ctx = document.getElementById("majorLegend").getContext("2d");
+		function drawLegend(options)
+		{
+		  // Set the starting x and y values
 
-        ctx.fillStyle = "rgba(155,0,0,1)";
-        ctx.fillRect( x+100, y+10, 25, 15 );
+		  var x        = options.x;
+		  var y        = options.y;
+                  var canvasId = options.canvasId;
+		  var colorC   = options.colorC;
+		  var colorJ   = options.colorJ;
 
-        ctx.fillStyle = "rgb(0,0,0)";
-        ctx.font      = "9pt Arial";
-        ctx.fillText( "C++", x+135, y+20 );
+		  // Get the area for the canvas and the 2D context
+		  // Draw 2 rectangles each with label
 
-        ctx.fillStyle = "rgba(0,0,155,1)";
-        ctx.fillRect( x+100, y+40, 25, 15 );
+		  var ctx = document.getElementById(canvasId).getContext("2d");
 
-        ctx.fillStyle = "rgb(0,0,0)";
-        ctx.font      = "9pt Arial";
-        ctx.fillText( "JAVA", x+135, y+50 );
-      }
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "LEGEND:", x+45, y+23 );
+
+                  ctx.fillStyle = colorC;
+                  ctx.fillRect( x+110, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "C++", x+140, y+23 );
+
+                  ctx.fillStyle = colorJ;
+                  ctx.fillRect( x+175, y+10, 25, 15 );
+
+                  ctx.fillStyle = "rgb(0,0,0)";
+                  ctx.font      = "9pt Arial";
+                  ctx.fillText( "JAVA", x+205, y+23 );
+
+		}
 
     </script>
 
     <style>
-      canvas   {
-	       }
-     .headline {
-                text-align:center;
-                font-weight:bold;
-                font-size:40px;
-               }
-     .heading {
-               text-align:center;
-               font-weight:bold;
-              }
-     .data    {
-               text-align:center;
-              }
+
+      h2        {
+                  text-align:center;
+                }
+      .headline {
+                  text-align:center;
+                  font-weight:bold;
+                  font-size:40px;
+                }
+      .heading  {
+                  text-align:center;
+                  font-weight:bold;
+                }
+      .data     {
+                  text-align:center;
+                }
+
    </style>
+
   </head>
 
   <body>
 
-    <h1 class="headline">SW DEFECT METRICS for [%- project -%] [%- hardware -%]</h1>
-    <table border=1 width="100%">
+    <h1 class="headline">[%- project -%]&nbsp;[%- hardware -%]</h1>
+    <h1 class="headline">SW DEFECT MEASURES</h1>
+
+    <table border=1; width="100%">
       <tr>
         <td>&nbsp;</td>
         <td colspan=3; class="heading">CRITICAL</td>
@@ -129,20 +149,47 @@
       [% FOREACH colordate = colordates -%]
         <tr>
           <td class="data">[%- colordate.DATE -%]</td>
-          <td class="data">[%- colordate.CRITICAL_PA_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_PB_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_PA_JAVA -%]</td>
-          <td class="data">[%- colordate.MAJOR_PA_CPP -%]</td> <td class="data">[%- colordate.MAJOR_PB_CPP -%]</td> <td class="data">[%- colordate.MAJOR_PA_JAVA -%]</td>
-          <td class="data">[%- colordate.MINOR_PA_CPP -%]</td> <td class="data">[%- colordate.MINOR_PB_CPP -%]</td> <td class="data">[%- colordate.MINOR_PA_JAVA -%]</td>
+          <td class="data">[%- colordate.CRITICAL_GPP_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_MODEM_CPP -%]</td> <td class="data">[%- colordate.CRITICAL_GPP_JAVA -%]</td>
+          <td class="data">[%- colordate.MAJOR_GPP_CPP -%]</td> <td class="data">[%- colordate.MAJOR_MODEM_CPP -%]</td> <td class="data">[%- colordate.MAJOR_GPP_JAVA -%]</td>
+          <td class="data">[%- colordate.MINOR_GPP_CPP -%]</td> <td class="data">[%- colordate.MINOR_MODEM_CPP -%]</td> <td class="data">[%- colordate.MINOR_GPP_JAVA -%]</td>
         </tr>
       [%- END -%]
     </table>
 
+    <div id="thresholds" style="width:100%; height:10%;">
+      <canvas id="thresholdLegend" height="100" width="600"></canvas>
+    </div>
+
+    <script type="text/javascript">
+
+      var aboveThresholdLegendColor = "rgba(255,0,0,1)"; // red
+      var belowThresholdLegendColor = "rgba(0,255,0,1)"; // green
+
+      window.onload = drawThresholdLegend( {
+                                              x: -10,
+                                              y: 0,
+                                              colorAbove: aboveThresholdLegendColor,
+                                              colorBelow: belowThresholdLegendColor,
+                                              canvasId: "thresholdLegend"
+                                            }
+                                          );
+
+    </script>
+
+
     <hr>
 
-    <h2>CRITICAL BURNDOWN</h2>
+    <h2>CRITICAL DEFECTS SOLUTION RATE</h2>
 
     <canvas id="canvasCritical" height="300" width="600"></canvas>
 
     <script>
+
+      var CPPCriticalStrokeColor  = [%- colors.critical.CPP.line   -%];
+      var CPPCriticalPointColor   = [%- colors.critical.CPP.point  -%];
+      var JAVACriticalStrokeColor = [%- colors.critical.JAVA.line  -%];
+      var JAVACriticalPointColor  = [%- colors.critical.JAVA.point -%];
+
       var lineChartCritical = {
                                 labels:[
                                 [%- FOREACH date = dates -%]"
@@ -151,23 +198,23 @@
                                 [%- END -%]],
                                 datasets :  [
                                               {
-                                                fillColor        : "rgba(255,255,204,0.5)",
-                                                strokeColor      : "rgba(255,0,0,1)",
-                                                pointColor       : "rgba(255,0,0,1)",
+                                                fillColor        : "rgba(255,255,204,0.2)",
+                                                strokeColor      : CPPCriticalStrokeColor,
+                                                pointColor       : CPPCriticalPointColor,
                                                 pointStrokeColor : "#fff",
                                                 data:[
                                                 [%- FOREACH date = dates -%]
-                                                  [%- date.CRITICAL_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                                  [%- date.CRITICAL_GPP_CPP -%][%- "," UNLESS loop.last -%]
                                                 [%- END -%]]
                                               },
                                               {
-                                                fillColor        : "rgba(255,255,204,0.5)",
-                                                strokeColor      : "rgba(0,0,255,1)",
-                                                pointColor       : "rgba(0,0,255,1)",
+                                                fillColor        : "rgba(255,255,204,0.2)",
+                                                strokeColor      : JAVACriticalStrokeColor,
+                                                pointColor       : JAVACriticalPointColor,
                                                 pointStrokeColor : "#fff",
                                                 data:[
                                                 [%- FOREACH date = dates -%]
-                                                  [%- date.CRITICAL_PA_JAVA -%][%- "," UNLESS loop.last -%]
+                                                  [%- date.CRITICAL_GPP_JAVA -%][%- "," UNLESS loop.last -%]
                                                 [%- END -%]]
                                               }
                                             ]
@@ -182,36 +229,56 @@
     </div>
 
     <script type="text/javascript">
-      window.onload = drawLegend1();
+
+      var CPPCriticalLegendColor  = [%- colors.critical.CPP.line   -%];
+      var JAVACriticalLegendColor = [%- colors.critical.JAVA.line  -%];
+
+      window.onload = drawLegend( {
+                                    x: -5,
+				    y: 0,
+				    colorC: CPPCriticalLegendColor,
+				    colorJ: JAVACriticalLegendColor,
+				    canvasId: "criticalLegend"
+                                  }
+				);
+
     </script>
 
     <hr>
 
-    <h2>MAJOR BURNDOWN</h2>
+    <h2>MAJOR DEFECTS SOLUTION RATE</h2>
     <canvas id="canvasMajor" height="300" width="600"></canvas>
 
     <script>
+      var majorStrokeColor = "rgba(0,255,0,1)";
+      var majorPointColor  = "rgba(0,255,0,1)";
+
+      var CPPMajorStrokeColor  = [%- colors.major.CPP.line   -%];
+      var CPPMajorPointColor   = [%- colors.major.CPP.point  -%];
+      var JAVAMajorStrokeColor = [%- colors.major.JAVA.line  -%];
+      var JAVAMajorPointColor  = [%- colors.major.JAVA.point -%];
+
       var lineChartMajor = {
                             labels:[[%- FOREACH date = dates -%]"[%- date.DATE -%]"[%- "," UNLESS loop.last -%][%- END -%]],
                             datasets :  [
                                           {
-                                            fillColor        : "rgba(255,255,204,0.5)",
-                                            strokeColor      : "rgba(153,0,0,1)",
-                                            pointColor       : "rgba(153,0,0,1)",
+                                            fillColor        : "rgba(255,255,204,0.2)",
+                                            strokeColor      : CPPMajorStrokeColor,
+                                            pointColor       : CPPMajorPointColor,
                                             pointStrokeColor : "#fff",
                                             data:[
                                             [%- FOREACH date = dates -%]
-                                              [%- date.MAJOR_PA_CPP -%][%- "," UNLESS loop.last -%]
+                                              [%- date.MAJOR_GPP_CPP -%][%- "," UNLESS loop.last -%]
                                             [%- END -%]]
                                           },
                                           {
-                                            fillColor        : "rgba(255,255,204,0.5)",
-                                            strokeColor      : "rgba(0,0,153,1)",
-                                            pointColor       : "rgba(0,0,153,1)",
+                                            fillColor        : "rgba(255,255,204,0.2)",
+                                            strokeColor      : JAVAMajorStrokeColor,
+                                            pointColor       : JAVAMajorPointColor,
                                             pointStrokeColor : "#fff",
                                             data:[
                                             [%- FOREACH date = dates -%]
-                                              [%- date.MAJOR_PA_JAVA -%][%- "," UNLESS loop.last -%]
+                                              [%- date.MAJOR_GPP_JAVA -%][%- "," UNLESS loop.last -%]
                                             [%- END -%]]
                                           }
                                         ]
@@ -226,7 +293,16 @@
     </div>
 
     <script type="text/javascript">
-      window.onload = drawLegend2();
+      var CPPMajorLegendColor  = [%- colors.major.CPP.line   -%];
+      var JAVAMajorLegendColor = [%- colors.major.JAVA.line  -%];
+      window.onload = drawLegend( {
+                                    x: 0,
+				    y: 0,
+				    colorC: CPPMajorLegendColor,
+				    colorJ: JAVAMajorLegendColor,
+				    canvasId: "majorLegend"
+                                  }
+				);
     </script>
 
     <div id="footer">
