@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration name="metrics.xml">
+
+  <item name="logDir" value="logs" />
+
+  <item name="CRITICAL_CPP_THRESHOLD"   value="25"  />
+  <item name="MAJOR_CPP_THRESHOLD"      value="60"  />
+  <item name="MINOR_CPP_THRESHOLD"      value="262" />
+
+  <item name="CRITICAL_JAVA_THRESHOLD"  value="60"  />
+  <item name="MAJOR_JAVA_THRESHOLD"     value="75"  />
+  <item name="MINOR_JAVA_THRESHOLD"     value="250" />
+
+  <item name="CRITICAL_MODEM_THRESHOLD" value="30"  />
+  <item name="MAJOR_MODEM_THRESHOLD"    value="70"  />
+  <item name="MINOR_MODEM_THRESHOLD"    value="275" />
+
+</configuration>
