@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<configuration name="metrics.xml">
 
-  <item name="logDir" value="logs" />
+<configuration>
+
+  <item name="logdir" value="logs" />
 
   <item name="CRITICAL_CPP_THRESHOLD"   value="25"  />
   <item name="MAJOR_CPP_THRESHOLD"      value="60"  />

@@ -5,6 +5,8 @@ use strict;
 use Carp;
 use Data::Dumper::Simple;
 
+use English;
+
 use feature qw(switch);
 use File::Path qw(make_path remove_tree);
 use FindBin qw($Bin);
@@ -23,29 +25,39 @@ use Template;
 
 use utf8;
 
-local $| = 1;
-my( $script ) = $FindBin::Script =~ /(.*)\.pl$/x;
+use XML::LibXML;
 
-my( $TRUE, $FALSE, $g_currentDir, $CRITICAL_CPP_THRESHOLD,   $MAJOR_CPP_THRESHOLD,   $MINOR_CPP_THRESHOLD,
-                                  $CRITICAL_JAVA_THRESHOLD,  $MAJOR_JAVA_THRESHOLD,  $MINOR_JAVA_THRESHOLD,
-				  $CRITICAL_MODEM_THRESHOLD, $MAJOR_MODEM_THRESHOLD, $MINOR_MODEM_THRESHOLD
+local $| = 1;
+my( $script )   = $FindBin::Script =~ /(.*)\.pl$/x;
+
+my( $TRUE, $FALSE,
+    $g_currentDir, $g_logDir,
+    $dataFilePath, $configFilePath, $logLevel, $debug, $help,
+    $CRITICAL_CPP_THRESHOLD,   $MAJOR_CPP_THRESHOLD,   $MINOR_CPP_THRESHOLD,
+    $CRITICAL_JAVA_THRESHOLD,  $MAJOR_JAVA_THRESHOLD,  $MINOR_JAVA_THRESHOLD,
+    $CRITICAL_MODEM_THRESHOLD, $MAJOR_MODEM_THRESHOLD, $MINOR_MODEM_THRESHOLD
   );
 
-setConfiguration();
+# make this work for Windows and Linux
+#
+my $dirSeparator = ( $OSNAME =~ /^MSWin/x ) ? '\\' : '/';
 
-GetOptions(
-	    "datafile=s" => \my $dataFilePath,
-	    "debug"      => \my $testMode
-	  );
-croak '__CROAK__ -datafile <path to data file> is required!' unless $dataFilePath;
+#  get input args
+#   read the script's config file
+#     assign threshold values and other initialization variables
+#
+getInputArguments();
+setConfiguration( getConfig( $configFilePath ) );
 
-my $logFilePath = createDir('logs');
-Log::Log4perl::init( loggerInit( $logFilePath, $testMode ) );
+my $debugLevel0 = $FALSE; # some debug is needed before $loggerMain is ready
+
+my $logFilePath = createDir( $g_logDir );
+Log::Log4perl::init( loggerInit( $logFilePath, $debug ) );
 my $loggerMain  = get_logger( $script );
-   $loggerMain->level( $INFO );
+   $loggerMain->level( getLoggerLevel( $logLevel ) );
 
 my $project  = 'Project:';
-my $hardware = 'Andromeda';
+my $hardware = 'Ganymede';
 
 my @columns   = qw(DATE CRITICAL_GPP_CPP CRITICAL_MODEM_CPP CRITICAL_GPP_JAVA
                          MAJOR_GPP_CPP    MAJOR_MODEM_CPP    MAJOR_GPP_JAVA
@@ -227,22 +239,26 @@ sub getData
 
 sub setConfiguration
 {
+  my $hRef = shift;
+
   Readonly::Scalar $TRUE  => 1;
   Readonly::Scalar $FALSE => 0;
 
-  Readonly::Scalar $g_currentDir => $Bin;
+  Readonly::Scalar $g_currentDir             => $Bin;
 
-  Readonly::Scalar $CRITICAL_CPP_THRESHOLD   => 25;
-  Readonly::Scalar $MAJOR_CPP_THRESHOLD      => 50;
-  Readonly::Scalar $MINOR_CPP_THRESHOLD      => 262;
+  Readonly::Scalar $g_logDir                 => $g_currentDir . $dirSeparator . $hRef->{ logdir };
 
-  Readonly::Scalar $CRITICAL_JAVA_THRESHOLD  => 60;
-  Readonly::Scalar $MAJOR_JAVA_THRESHOLD     => 75;
-  Readonly::Scalar $MINOR_JAVA_THRESHOLD     => 250;
+  Readonly::Scalar $CRITICAL_CPP_THRESHOLD   => $hRef->{ CRITICAL_CPP_THRESHOLD   };
+  Readonly::Scalar $MAJOR_CPP_THRESHOLD      => $hRef->{ MAJOR_CPP_THRESHOLD      };
+  Readonly::Scalar $MINOR_CPP_THRESHOLD      => $hRef->{ MINOR_CPP_THRESHOLD      };
 
-  Readonly::Scalar $CRITICAL_MODEM_THRESHOLD => 30;
-  Readonly::Scalar $MAJOR_MODEM_THRESHOLD    => 70;
-  Readonly::Scalar $MINOR_MODEM_THRESHOLD    => 275;
+  Readonly::Scalar $CRITICAL_JAVA_THRESHOLD  => $hRef->{ CRITICAL_JAVA_THRESHOLD  };
+  Readonly::Scalar $MAJOR_JAVA_THRESHOLD     => $hRef->{ MAJOR_JAVA_THRESHOLD     };
+  Readonly::Scalar $MINOR_JAVA_THRESHOLD     => $hRef->{ MINOR_JAVA_THRESHOLD     };
+
+  Readonly::Scalar $CRITICAL_MODEM_THRESHOLD => $hRef->{ CRITICAL_MODEM_THRESHOLD };
+  Readonly::Scalar $MAJOR_MODEM_THRESHOLD    => $hRef->{ MAJOR_MODEM_THRESHOLD    };
+  Readonly::Scalar $MINOR_MODEM_THRESHOLD    => $hRef->{ MINOR_MODEM_THRESHOLD    };
 
   return;
 }
@@ -250,26 +266,23 @@ sub setConfiguration
 
 sub createDir
 {
-  my $dir    = shift;
-  my $logDir = $g_currentDir . '/' . $dir;
-  return $logDir if -e $logDir;
+  my $dir = shift;
+
+  return $dir if -e $dir;
 
   my( $subroutine )   = (caller(0))[3];
   local $| = 1;
 
-  my $debugError  = $TRUE;
-  my $debugLevel0 = $FALSE;
-
   print "$subroutine ", __LINE__, ": directory is $dir\n" if $debugLevel0;
 
-  my $makePathResponse = make_path( $logDir,
+  my $makePathResponse = make_path( $dir,
                                     {
 				      verbose => $FALSE,
                                       error   => \my $err,
                                     }
                                    );
 
-  print "$subroutine ", __LINE__, ": attempted to create directory $logDir \$makePathResponse = $makePathResponse\n" if $debugLevel0;
+  print "$subroutine ", __LINE__, ": attempted to create directory $dir \$makePathResponse = $makePathResponse\n" if $debugLevel0;
 
   if( @$err )
   {
@@ -278,19 +291,19 @@ sub createDir
      my( $file, $message ) = %$diag;
      if( $file eq '' )
      {
-      print "$subroutine ", __LINE__, "__ERROR__ : general error : \$message = $message\n" if $debugError;
+      print "$subroutine ", __LINE__, "__ERROR__ : general error : \$message = $message\n";
      }
      else
      {
-      print "$subroutine ", __LINE__, "__ERROR__ : creating \$file = $file : \$message = $message\n" if $debugError;
+      print "$subroutine ", __LINE__, "__ERROR__ : creating \$file = $file : \$message = $message\n";
      }
     }
   }
   else
   {
-    print "$subroutine ", __LINE__, ": No make_path errors encountered \$logDir = $logDir\n" if $debugLevel0;
+    print "$subroutine ", __LINE__, ": No make_path errors encountered \$dir = $dir\n" if $debugLevel0;
   }
-  return $logDir;
+  return $dir;
 }
 
 #
@@ -339,7 +352,7 @@ sub loggerInit
 
   my $logFileName = $dir . '/' . formattedDateTime()->{ yyyymmddhhmmss } . '_' . $script . '.log';
 
-  # $testMode writes to the screen and a file
+  # $test mode writes to the screen and a file
   #
   my $log_conf;
   if( $test )
@@ -391,6 +404,153 @@ sub formattedDateTime
         );
 }
 
+sub getConfig
+{
+  my $xmlFilePath = shift;
+
+  print $script, ' ', __LINE__, ' $xmlFilePath = ', $xmlFilePath, "\n" if $debugLevel0;
+
+  local $| = 1;
+
+  my $doc;
+  my $parser = XML::LibXML->new();
+
+  # eval logic courtesy of:
+  #   Perl::Critic::Policy::ErrorHandling::RequireCheckingReturnValueOfEval
+  #
+  if( eval{ $doc = $parser->parse_file( $xmlFilePath ); 1 } )
+  {
+    if( ref( $@ ) )
+    {
+      reportXMLError();
+      croak '__CROAK__: NOT an XML::LibXML::Error object $@->dump() = ', $@->dump();
+    }
+    elsif( $@ )
+    {
+      # error, but not an XML::LibXML::Error object
+      #
+      croak '__CROAK__: NOT an XML::LibXML::Error object $@ = ', $@;
+    }
+  }
+
+  print $script, ' ', __LINE__, " No XML or system errors...\n" if $debugLevel0;
+
+  my %config;
+
+  for my $covIgnoredDirectoriesNode( $doc->findnodes( '/configuration/*' ) )
+  {
+    my $name  = $covIgnoredDirectoriesNode->getAttribute( 'name' );
+    my $value = $covIgnoredDirectoriesNode->getAttribute( 'value' );
+    print $script, ' ', __LINE__, ' name = ', $name, ' $value = ', $value, "\n" if $debugLevel0;
+
+    $config{ $name } = $value;
+  }
+  print $script, ' ', __LINE__, Dumper( %config ) if $debugLevel0;
+  return \%config;
+}
+
+sub reportXMLError
+{
+  # report a structured error (XML::LibXML::Error object)
+  #
+  my $message = $@->as_string();
+  $loggerMain->error( '$message = ', $message ) if $message;
+
+  my $error_domain = $@->domain();
+  $loggerMain->error( '$error_domain = ', $error_domain ) if $error_domain;
+
+  my $error_code = $@->code();
+  $loggerMain->error( '$error_code = ', $error_code ) if $error_code;
+
+  my $error_message = $@->message();
+  $loggerMain->error( '$error_message = ', $error_message ) if $error_message;
+
+  my $error_level = $@->level();
+  $loggerMain->error( '$error_level = ', $error_level ) if $error_level;
+
+  my $filename = $@->file();
+  $loggerMain->error( '$filename = ', $filename ) if $filename;
+
+  my $line = $@->line();
+  $loggerMain->error( '$line = ', $line ) if $line;
+
+  my $nodename = $@->nodename();
+  $loggerMain->error( '$nodename = ', $nodename ) if $nodename;
+
+  my $error_str1 = $@->str1();
+  $loggerMain->error( '$error_str1 = ', $error_str1 ) if $error_str1;
+
+  my $error_str2 = $@->str2();
+  $loggerMain->error( '$error_str2 = ', $error_str2 ) if $error_str2;
+
+  my $error_str3 = $@->str3();
+  $loggerMain->error( '$error_str3 = ', $error_str3 ) if $error_str3;
+
+  my $error_num1 = $@->num1();
+  $loggerMain->error( '$error_num1 = ', $error_num1 ) if $error_num1;
+
+  my $error_num2 = $@->num2();
+  $loggerMain->error( '$error_num2 = ', $error_num2 ) if $error_num2;
+
+  my $string = $@->context();
+  $loggerMain->error( '$string = ', $string ) if $string;
+
+  my $offset = $@->column();
+  $loggerMain->error( '$offset = ', $offset ) if $offset;
+
+  my $previous_error = $@->_prev();
+  $loggerMain->error( '$previous_error = ', $previous_error ) if $previous_error;
+  return;
+}
+
+sub getInputArguments
+{
+  my $USAGE = << "_EOT_";
+"Usage: $script
+-datafile 'data file path'
+-configfile 'confoguration file path'
+[-debug]
+[-loglevel [DEBUG|INFO|WARN|ERROR|FATAL]]
+[-h|?|help]"
+_EOT_
+
+  $USAGE  = join ' ', split m{\n}x, $USAGE;
+  $USAGE .= "\n";
+
+  croak $USAGE unless GetOptions(
+				  "datafile=s"   => \$dataFilePath,
+				  "configfile=s" => \$configFilePath,
+				  "loglevel=s"   => \$logLevel,
+				  "debug"        => \$debug,
+				  "h|?|help"     => \$help,
+				);
+
+  croak '__CROAK__ -datafile <path to data file> is required!'            unless $dataFilePath;
+  croak '__CROAK__ -configfile <path to configuration file> is required!' unless $configFilePath;
+
+  print $USAGE and exit if $help;
+
+  $logLevel = $WARN unless $logLevel;
+
+  return;
+}
+
+sub getLoggerLevel
+{
+  my $level = shift;
+  my $loggerLevel;
+  given( $level )
+  {
+    when ( 'DEBUG' ) { $loggerLevel = $DEBUG }
+    when ( 'INFO'  ) { $loggerLevel = $INFO  }
+    when ( 'WARN'  ) { $loggerLevel = $WARN  }
+    when ( 'ERROR' ) { $loggerLevel = $ERROR }
+    when ( 'FATAL' ) { $loggerLevel = $FATAL }
+    default          { $loggerLevel = $WARN  }
+  }
+  return $loggerLevel;
+}
+
 __END__
 
 =pod
@@ -420,11 +580,14 @@ CPAN modules demonstrated include:
 
 =item * Template::Toolkit
 
+=item * XML::LibXML
+
 =back
 
 =head1 USAGE
 
-Usage: perl metrics.pl -datafile 'file path' [-debug]
+Usage: perl metrics.pl -datafile 'file path' -configfile 'configuration file path'
+                      [-loglevel [DEBUG|INFO|WARN|ERROR|FATAL]] [-debug] [-h|?|help]"
 
 =head1 REQUIRED ARGUMENTS
 
