@@ -38,7 +38,7 @@ my( $TRUE, $FALSE,
     $CRITICAL_MODEM_THRESHOLD, $MAJOR_MODEM_THRESHOLD, $MINOR_MODEM_THRESHOLD
   );
 
-# make this work for Windows and Linux
+# for Windows and Linux
 #
 my $dirSeparator = ( $OSNAME =~ /^MSWin/x ) ? '\\' : '/';
 
@@ -61,7 +61,7 @@ my $hardware = 'Ganymede';
 
 my @columns   = qw(DATE CRITICAL_GPP_CPP CRITICAL_MODEM_CPP CRITICAL_GPP_JAVA
                          MAJOR_GPP_CPP    MAJOR_MODEM_CPP    MAJOR_GPP_JAVA
-			 MINOR_GPP_CPP    MINOR_MODEM_CPP    MINOR_GPP_JAVA);
+                         MINOR_GPP_CPP    MINOR_MODEM_CPP    MINOR_GPP_JAVA);
 my @dates;
 
 getData( $dataFilePath );
@@ -87,30 +87,38 @@ createColorMarkup( \@colorDates );
 $loggerMain->debug( Dumper( @colorDates ) );
 
 # Template::Toolkit
-# template file, $script.tt will map data to html
+# template file, $script.tt, will map data to html
 #
 my $tt = Template->new;
 
 my %linePointColors = (
                         critical => {
-                                      CPP => {
-                                                line => '"rgba(255,0,0,1)"',
-                                                point=> '"rgba(255,0,0,1)"',
-                                             },
-                                      JAVA=> {
-                                               line => '"rgba(0,0,255,1)"',
-                                               point=> '"rgba(0,0,255,1)"',
-                                             },
+                                      GPP =>   {
+                                                 line => '"rgba(255,0,0,1)"',
+                                                 point=> '"rgba(255,0,0,1)"',
+                                               },
+                                      MODEM => {
+                                                 line => '"rgba(0,0,0,1)"',
+                                                 point=> '"rgba(0,0,0,1)"',
+                                               },
+                                      JAVA=>   {
+                                                 line => '"rgba(0,0,255,1)"',
+                                                 point=> '"rgba(0,0,255,1)"',
+                                               },
                                     },
                         major    => {
-                                      CPP => {
-                                                line => '"rgba(0,255,0,1)"',
-                                                point=> '"rgba(0,255,0,1)"',
-                                             },
-                                      JAVA=> {
-                                               line => '"rgba(225,100,25,1)"',
-                                               point=> '"rgba(225,100,25,1)"',
-                                             },
+                                      GPP =>   {
+                                                 line => '"rgba(0,255,0,1)"',
+                                                 point=> '"rgba(0,255,0,1)"',
+                                               },
+                                      MODEM => {
+                                                 line => '"rgba(100,100,0,1)"',
+                                                 point=> '"rgba(100,100,0,1)"',
+                                               },
+                                      JAVA=>   {
+                                                 line => '"rgba(225,100,25,1)"',
+                                                 point=> '"rgba(225,100,25,1)"',
+                                               },
                                     },
                       );
 
@@ -122,7 +130,7 @@ $tt->process( $script . '_html.tt',
                colordates => \@colorDates,
                dates      => \@dates,
                colors     => \%linePointColors,
-               copyright  => '2013 dsassdevatgmaildotcom',
+               copyright  => '2013 swdeveloperatcoxdotnet',
              },
              $script . '.html' )
   or croak '__CROAK__ $tt->error = ', $tt->error;
@@ -138,8 +146,7 @@ sub createColorMarkup
 
   for( my $i=0; $i<$aLength; $i++ )
   {
-    # configuration GPP
-    #
+
     my $value = $aRef->[$i]{CRITICAL_GPP_CPP};
     given( $value )
     {
@@ -188,8 +195,6 @@ sub createColorMarkup
       $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;' when $value >  $MINOR_JAVA_THRESHOLD;
     }
 
-    # configuration MODEM
-    #
     $value = $aRef->[$i]{CRITICAL_MODEM_CPP};
     given( $value )
     {
@@ -223,12 +228,13 @@ sub getData
   my $file = shift;
 
   # read/process input file (.csv assumed) identified on the command line
-  # EXAMPLE: 5/12/2013,16,92,11,68,79,71,335,264,212
+  # EXAMPLE: 1/1/2013,16,92,11,68,79,71,335,264,212
   #
   open my $fh, '<', $file;
   while( <$fh> )
   {
     chomp;
+    next if /^\s*$/x;
     my %date;
     @date{@columns} = split /,/x;
     push @dates, \%date;
@@ -277,7 +283,7 @@ sub createDir
 
   my $makePathResponse = make_path( $dir,
                                     {
-				      verbose => $FALSE,
+                                      verbose => $FALSE,
                                       error   => \my $err,
                                     }
                                    );
@@ -518,12 +524,12 @@ _EOT_
   $USAGE .= "\n";
 
   croak $USAGE unless GetOptions(
-				  "datafile=s"   => \$dataFilePath,
-				  "configfile=s" => \$configFilePath,
-				  "loglevel=s"   => \$logLevel,
-				  "debug"        => \$debug,
-				  "h|?|help"     => \$help,
-				);
+                                  "datafile=s"   => \$dataFilePath,
+                                  "configfile=s" => \$configFilePath,
+                                  "loglevel=s"   => \$logLevel,
+                                  "debug"        => \$debug,
+                                  "h|?|help"     => \$help,
+                                );
 
   croak '__CROAK__ -datafile <path to data file> is required!'            unless $dataFilePath;
   croak '__CROAK__ -configfile <path to configuration file> is required!' unless $configFilePath;
@@ -563,7 +569,8 @@ metrics.pl
 
 =head1 SYNOPSIS
 
-Perl script to read software defect measures and create an HTML file to display the data in table and graph form.
+Perl script to read software defect measures and create an HTML file to display
+the data in table and graph form.
 
 =head1 DESCRIPTION
 
@@ -574,9 +581,9 @@ CPAN modules demonstrated include:
 
 =over 2
 
-=item * Readonly
-
 =item * Log::Log4Perl
+
+=item * Readonly
 
 =item * Template::Toolkit
 
@@ -589,9 +596,13 @@ CPAN modules demonstrated include:
 Usage: perl metrics.pl -datafile 'file path' -configfile 'configuration file path'
                       [-loglevel [DEBUG|INFO|WARN|ERROR|FATAL]] [-debug] [-h|?|help]"
 
+Example: perl metrics.pl -datafile measures.csv -configfile metrics.xml
+
 =head1 REQUIRED ARGUMENTS
 
-A comma-separated variable (.csv) data file is required.
+A comma-separated variable (.csv) data file and a configuration file (.xml) are required.
+See measures.csv for data file format.
+See metrics.xml for configuration format.
 
 =head1 OPTIONS
 
@@ -600,30 +611,32 @@ If the optional argument is not present the script will use a default value.
 
 =over 2
 
-=item * -debug : (boolean) prints trace staements to show script progress and data details
+=item * -debug : (boolean) prints trace statements to show script progress and data details
 
 =back
 
 =head1 DIAGNOSTICS
 
-none
+log4perl trace statements
 
 =head1 EXIT STATUS
 
-Exits with 0 for non-error executuion.
-Error conditions within the script will cause it to Croak at the point of failure.
+Exits with 0 for non-error execution.
+Error conditions within the script will cause it to croak at the point of failure.
 
 =head1 CONFIGURATION
 
-Configuration file is ...
+metrics.xml contains log file path and threshold measurement values.
 
 =head1 DEPENDENCIES
 
+Developed and tested using ActiveState Perl v5.16.3 on Windows.
 See the 'use <module>' list at the top of the script.
 
 =head1 INCOMPATIBILITIES
 
-none observed
+Using Amazon (AWS) RHEL instance and Perl v5.10.1 required changing switch statements
+in createColorMarkup() to a set of if statements due to backward incompatibility.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -631,11 +644,12 @@ none observed
 
 =head1 AUTHOR
 
-Dennis Sass, E<lt>dsassdev at gmail dot comE<gt>
+Dennis Sass, E<lt>swdeveloperatcoxdotnetE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
 Copyright 2013 Dennis Sass, All rights reserved.
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the
+same terms as Perl.
 
 =cut
