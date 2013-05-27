@@ -143,80 +143,167 @@ sub createColorMarkup
 {
   my $aRef    = shift;
   my $aLength = @$aRef;
-
   for( my $i=0; $i<$aLength; $i++ )
   {
-
-    my $value = $aRef->[$i]{CRITICAL_GPP_CPP};
-    given( $value )
+    if( $aRef->[$i]{CRITICAL_GPP_CPP} <  $CRITICAL_CPP_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;' when $value <  $CRITICAL_CPP_THRESHOLD;
-      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="black">' . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;' when $value == $CRITICAL_CPP_THRESHOLD;
-      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;' when $value >  $CRITICAL_CPP_THRESHOLD;
+      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_GPP_CPP} == $CRITICAL_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="black">' . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_GPP_CPP} >  $CRITICAL_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{CRITICAL_GPP_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $CRITICAL_CPP_THRESHOLD = ', $CRITICAL_CPP_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MAJOR_GPP_CPP};
-    given( $value )
+
+    if( $aRef->[$i]{MAJOR_GPP_CPP} <  $MAJOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;' when $value <  $MAJOR_CPP_THRESHOLD;
-      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="black">' . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;' when $value == $MAJOR_CPP_THRESHOLD;
-      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;' when $value >  $MAJOR_CPP_THRESHOLD;
+      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_GPP_CPP} == $MAJOR_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="black">' . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_GPP_CPP} >  $MAJOR_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{MAJOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MAJOR_CPP_THRESHOLD = ', $MAJOR_CPP_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MINOR_GPP_CPP};
-    given( $value )
+
+    if( $aRef->[$i]{MINOR_GPP_CPP} <  $MINOR_CPP_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;' when $value <  $MINOR_CPP_THRESHOLD;
-      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="black">' . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;' when $value == $MINOR_CPP_THRESHOLD;
-      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;' when $value >  $MINOR_CPP_THRESHOLD;
+      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_GPP_CPP} == $MINOR_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="black">' . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_GPP_CPP} >  $MINOR_CPP_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_GPP_CPP} = '<font color="red">'   . $aRef->[$i]{MINOR_GPP_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MINOR_CPP_THRESHOLD = ', $MINOR_CPP_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{CRITICAL_GPP_JAVA};
-    given( $value )
+
+    if( $aRef->[$i]{CRITICAL_GPP_JAVA} <  $CRITICAL_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;' when $value <  $CRITICAL_JAVA_THRESHOLD;
-      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;' when $value == $CRITICAL_JAVA_THRESHOLD;
-      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;' when $value >  $CRITICAL_JAVA_THRESHOLD;
+      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_GPP_JAVA} == $CRITICAL_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_GPP_JAVA} >  $CRITICAL_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{CRITICAL_GPP_JAVA} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $CRITICAL_JAVA_THRESHOLD = ', $CRITICAL_JAVA_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MAJOR_GPP_JAVA};
-    given( $value )
+
+    if( $aRef->[$i]{MAJOR_GPP_JAVA} <  $MAJOR_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;' when $value <  $MAJOR_JAVA_THRESHOLD;
-      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;' when $value == $MAJOR_JAVA_THRESHOLD;
-      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;' when $value >  $MAJOR_JAVA_THRESHOLD;
+      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_GPP_JAVA} ==  $MAJOR_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_GPP_JAVA} >  $MAJOR_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{MAJOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MAJOR_JAVA_THRESHOLD = ', $MAJOR_JAVA_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MINOR_GPP_JAVA};
-    given( $value )
+
+    if( $aRef->[$i]{MINOR_GPP_JAVA} <  $MINOR_JAVA_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;' when $value <  $MINOR_JAVA_THRESHOLD;
-      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;' when $value == $MINOR_JAVA_THRESHOLD;
-      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;' when $value >  $MINOR_JAVA_THRESHOLD;
+      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="green">' . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_GPP_JAVA} ==  $MINOR_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="black">' . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_GPP_JAVA} >  $MINOR_JAVA_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_GPP_JAVA} = '<font color="red">'   . $aRef->[$i]{MINOR_GPP_JAVA} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MINOR_JAVA_THRESHOLD = ', $MINOR_JAVA_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{CRITICAL_MODEM_CPP};
-    given( $value )
+
+    if( $aRef->[$i]{CRITICAL_MODEM_CPP} <  $CRITICAL_MODEM_THRESHOLD )
     {
-      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;' when $value <  $CRITICAL_MODEM_THRESHOLD;
-      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;' when $value == $CRITICAL_MODEM_THRESHOLD;
-      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;' when $value >  $CRITICAL_MODEM_THRESHOLD;
+      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_MODEM_CPP} ==  $CRITICAL_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{CRITICAL_MODEM_CPP} >  $CRITICAL_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{CRITICAL_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{CRITICAL_MODEM_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $CRITICAL_MODEM_THRESHOLD = ', $CRITICAL_MODEM_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MAJOR_MODEM_CPP};
-    given( $value )
+
+    if( $aRef->[$i]{MAJOR_MODEM_CPP} <  $MAJOR_MODEM_THRESHOLD )
     {
-      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;' when $value <  $MAJOR_MODEM_THRESHOLD;
-      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;' when $value == $MAJOR_MODEM_THRESHOLD;
-      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;' when $value >  $MAJOR_MODEM_THRESHOLD;
+      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_MODEM_CPP} ==  $MAJOR_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MAJOR_MODEM_CPP} >  $MAJOR_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{MAJOR_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{MAJOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MAJOR_MODEM_THRESHOLD = ', $MAJOR_MODEM_THRESHOLD, qw(\n);
     }
 
-    $value = $aRef->[$i]{MINOR_MODEM_CPP};
-    given( $value )
+
+    if( $aRef->[$i]{MINOR_MODEM_CPP} <  $MINOR_MODEM_THRESHOLD )
     {
-      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;' when $value <  $MINOR_MODEM_THRESHOLD;
-      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;' when $value == $MINOR_MODEM_THRESHOLD;
-      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;' when $value >  $MINOR_MODEM_THRESHOLD;
+      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="green">' . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_MODEM_CPP} ==  $MINOR_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="black">' . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    elsif( $aRef->[$i]{MINOR_MODEM_CPP} >  $MINOR_MODEM_THRESHOLD )
+    {
+      $aRef->[$i]{MINOR_MODEM_CPP} = '<font color="red">'   . $aRef->[$i]{MINOR_MODEM_CPP} . '</font>&nbsp;';
+    }
+    else
+    {
+      carp 'No match for $MINOR_MODEM_THRESHOLD = ', $MINOR_MODEM_THRESHOLD, qw(\n);
     }
 
   }
@@ -630,13 +717,15 @@ metrics.xml contains log file path and threshold measurement values.
 
 =head1 DEPENDENCIES
 
-Developed and tested using ActiveState Perl v5.16.3 on Windows.
 See the 'use <module>' list at the top of the script.
+Developed and tested using ActiveState Perl v5.16.3 on Windows and Perl v5.10.1 on Linux.
+See 'INCOMPATIBILITIES.'
 
 =head1 INCOMPATIBILITIES
 
 Using Amazon (AWS) RHEL instance and Perl v5.10.1 required changing switch statements
-in createColorMarkup() to a set of if statements due to backward incompatibility.
+in createColorMarkup() to a set of if statements due to backward incompatibility. This
+results in a Perl::Critic high complexity complaint for createColorMarkup().
 
 =head1 BUGS AND LIMITATIONS
 
