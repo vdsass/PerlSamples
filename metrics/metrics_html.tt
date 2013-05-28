@@ -12,7 +12,7 @@
 
     <meta name = "viewport" content = "initial-scale = 1, user-scalable = no">
 
-    <script src="../js/Chart.js"></script>
+    <script src="Chart.js"></script>
 
     <script type="text/javascript">
 		function drawThresholdLegend(options)

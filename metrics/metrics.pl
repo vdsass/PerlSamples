@@ -317,7 +317,9 @@ sub getData
   # read/process input file (.csv assumed) identified on the command line
   # EXAMPLE: 1/1/2013,16,92,11,68,79,71,335,264,212
   #
-  open my $fh, '<', $file;
+  open( my $fh, '<', $file )
+   or croak "__CROAK__ Cannot open $file : $!";
+
   while( <$fh> )
   {
     chomp;
