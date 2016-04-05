@@ -5,7 +5,7 @@ use strict;
 use Carp;
 use Data::Dumper::Simple;
 
-use English;
+use English qw(-no_match_vars);
 
 use feature qw(switch);
 use File::Path qw(make_path remove_tree);
@@ -689,8 +689,12 @@ Example: perl metrics.pl -datafile measures.csv -configfile metrics.xml
 
 =head1 REQUIRED ARGUMENTS
 
-A comma-separated variable (.csv) data file and a configuration file (.xml) are required.
-See measures.csv for data file format.
+A comma-separated variable (.csv) data file and a configuration file (.xml) are
+required. See measures.csv for data file format.
+
+An unsorted (by date) .csv data file will be sorted on output ('unsorted_measures.csv'
+is included in the local directory for demonstration).
+
 See metrics.xml for configuration format.
 
 =head1 OPTIONS
@@ -741,6 +745,6 @@ Dennis Sass, E<lt>swdeveloperatcoxdotnetE<gt>
 
 Copyright 2013 Dennis Sass, All rights reserved.
 This program is free software; you can redistribute it and/or modify it under the
-same terms as Perl.
+same terms as Perl itself.
 
 =cut
