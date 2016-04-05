@@ -603,7 +603,7 @@ sub getInputArguments
   my $USAGE = << "_EOT_";
 "Usage: $script
 -datafile 'data file path'
--configfile 'confoguration file path'
+-configfile 'configuration file path'
 [-debug]
 [-loglevel [DEBUG|INFO|WARN|ERROR|FATAL]]
 [-h|?|help]"
@@ -620,8 +620,8 @@ _EOT_
                                   "h|?|help"     => \$help,
                                 );
 
-  croak '__CROAK__ -datafile <path to data file> is required!'            unless $dataFilePath;
-  croak '__CROAK__ -configfile <path to configuration file> is required!' unless $configFilePath;
+  croak '__CROAK__ -datafile <path to .csv data file> is required!'            unless $dataFilePath;
+  croak '__CROAK__ -configfile <path to .xml configuration file> is required!' unless $configFilePath;
 
   print $USAGE and exit if $help;
 
@@ -672,11 +672,19 @@ CPAN modules demonstrated include:
 
 =item * Log::Log4Perl
 
+For debugging.
+
 =item * Readonly
+
+To maintain constants.
 
 =item * Template::Toolkit
 
+Templates to create HTML.
+
 =item * XML::LibXML
+
+API to libxml2 for XML file read/write. For a long time the ActiveState ppm lib did not have a working port of XML::LibXML. It's available for Perl 5.20 making XML::LibXML easier to support on a Windows platform.
 
 =back
 
@@ -739,11 +747,11 @@ none observed
 
 =head1 AUTHOR
 
-Dennis Sass, E<lt>swdeveloperatcoxdotnetE<gt>
+vdsass, E<lt>swdeveloperatcoxdotnetE<gt>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2013 Dennis Sass, All rights reserved.
+Copyright 2013-2016 vdsass, All rights reserved.
 This program is free software; you can redistribute it and/or modify it under the
 same terms as Perl itself.
 
